@@ -1,12 +1,13 @@
 # HVNC for c# 
 Re-creating the HVNC (Hidden Virtual Network Computing) in C# from a C++ source
-Contributions much appreciated, please use this source: https://github.com/rossja/TinyNuke/blob/master/Bot/HiddenDesktop.cpp
+Contributions much appreciated, please use this source: https://github.com/rossja/TinyNuke/blob/master/Bot/HiddenDesktop.cpp#L127
 
 # How to contribute?
-Download git bash and open your terminal.
 Fork this repository on GitHub.
-Open your terminal and type something like "git clone https://github.com/YOUR USERNAME/HVNC.git"
+Download git bash and open your terminal.
+With your terminal type something like "git clone https://github.com/YOUR USERNAME/HVNC.git"
 Start adding to the source.
+Commit it to your fork.
 Create a pull request on GitHub.
 
 # Preview (not this or TinyNuke, just to show)

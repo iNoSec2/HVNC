@@ -19,7 +19,7 @@ namespace ConsoleApp127
     public class HVNC
     {
 
-        public bool PaintWindow(IntPtr hwnd, IntPtr hdc, IntPtr hdc_screen)
+        public static bool PaintWindow(IntPtr hwnd, IntPtr hdc, IntPtr hdc_screen)
         {
             bool ret = false;
             RECT rect = new RECT();
@@ -57,7 +57,7 @@ namespace ConsoleApp127
             public IntPtr hdc_screen;
         }
 
-        public bool EnumHwndsPrint(IntPtr hwnd, long param)
+        public static bool EnumHwndsPrint(IntPtr hwnd, long param)
         {
             EnumHWndsPrintData data = (EnumHWndsPrintData)Marshal.PtrToStructure((IntPtr)param, typeof(EnumHWndsPrintData));
             if (!IsWindowVisible(hwnd))
@@ -85,13 +85,76 @@ namespace ConsoleApp127
             return handle.AddrOfPinnedObject().ToInt64();
         }
 
-        /*
-         * 
-         * To be continued
-         * Row: 86
-         * Next method to make: static BOOL GetDeskPixels(int serverWidth, int serverHeight)
-         */
 
+            public static bool GetDeskPixels(int serverWidth, int serverHeight )
+        {
+            IntPtr desktop = GetDesktopWindow();
+            RECT desktopBounds = default(RECT);
+            GetWindowRect(desktop, ref desktopBounds);
+
+            IntPtr hdc = GetWindowDC(IntPtr.Zero);
+            IntPtr hdc_screen = CreateCompatibleDC(hdc);
+            IntPtr bitmap_screen = CreateCompatibleBitmap(hdc, desktopBounds.right, desktopBounds.bottom);
+
+            SelectObject(hdc_screen, bitmap_screen);
+
+            EnumHWndsPrintData data;
+            data.hdc = hdc;
+            data.hdc_screen = hdc_screen;
+
+            EnumWindowsTopToDown(IntPtr.Zero, EnumHwndsPrint, StructToLong(data, out GCHandle handle));
+            
+            if (serverWidth > desktopBounds.right)
+                serverWidth = desktopBounds.right;
+            if (serverHeight > desktopBounds.bottom)
+                serverHeight = desktopBounds.bottom;
+
+            if(serverWidth != desktopBounds.right || serverHeight != desktopBounds.bottom)
+            {
+                IntPtr hBmpScreenResized = CreateCompatibleBitmap(hdc , serverWidth, serverHeight);
+                IntPtr hDcScreenResized = CreateCompatibleDC(hdc );
+
+                SelectObject(hDcScreenResized, hBmpScreenResized);
+                SetStretchBltMode(hDcScreenResized, 0x4);
+                StretchBlt(hDcScreenResized, 0, 0, serverWidth, serverHeight,
+                   hdc_screen, 0, 0, desktopBounds.right, desktopBounds.bottom, SRCCOPY);
+
+                DeleteObject(bitmap_screen);
+                DeleteDC(hdc_screen);
+
+                bitmap_screen = hBmpScreenResized;
+                hdc_screen = hDcScreenResized;
+            }
+
+            bool comparePixels = true;
+
+            /*
+             * 
+             * To be continued
+             * Row: 127
+             * Next part to make: continue GetDeskPixels
+             */
+        }
+
+        private static BITMAPINFOHEADER g_bmpInfo;
+
+
+
+        [DllImport("user32.dll")]
+        private static extern int SetStretchBltMode(IntPtr hdc, int mode);
+
+        [DllImport("user32.dll")]
+        private static extern bool StretchBlt(IntPtr hdcDest,
+  int xDest,
+  int yDest,
+  int wDest,
+  int hDest,
+  IntPtr hdcSrc,
+  int xSrc,
+  int ySrc,
+  int wSrc,
+  int hSrc,
+  int rop);
 
         [DllImport("user32.dll")]
         private static extern long SetWindowLongA(IntPtr hwnd, int nIndex, long dwNewLong);
@@ -136,6 +199,26 @@ namespace ConsoleApp127
             public int top;
             public int right;
             public int bottom;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct BITMAPINFOHEADER
+        {
+            public uint biSize;
+            public int biWidth;
+            public int biHeight;
+            public ushort biPlanes;
+            public ushort biBitCount;
+            public BitmapCompressionMode biCompression;
+            public uint biSizeImage;
+            public int biXPelsPerMeter;
+            public int biYPelsPerMeter;
+            public uint biClrUsed;
+            public uint biClrImportant;
+
+            public void Init()
+            {
+                biSize = (uint)Marshal.SizeOf(this);
+            }
         }
         [DllImport("user32.dll")]
         public static extern IntPtr GetDesktopWindow();
