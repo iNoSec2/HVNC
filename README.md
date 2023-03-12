@@ -2,9 +2,6 @@
 Re-creating the HVNC (Hidden Virtual Network Computing) in C# from a C++ source
 Contributions much appreciated, please use this source: https://github.com/rossja/TinyNuke/blob/master/Bot/HiddenDesktop.cpp#L127
 
-# Donate using Bitcoin!
-Donations: bitcoin:12FP1JisjYCsgfteTLMQQMLnVBs65wZD8G
-
 # How to contribute?
 Fork this repository on GitHub.
 Download git bash and open your terminal.
